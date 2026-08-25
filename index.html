@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Socratic Study Tutor</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+    #chatbox { height: 350px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .user { color: #0056b3; font-weight: bold; margin: 8px 0; }
+    .bot { color: #1e7e34; margin: 8px 0; }
+    .input-area { display: flex; gap: 8px; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px 16px; background: #0056b3; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>AI Study Assistant</h2>
+    <div id="chatbox"></div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="What are you studying?" onkeydown="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      query, 
+      orderBy, 
+      onSnapshot, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCf0Pfa0HOV4ciAVtqwLVNq_gLcCtAAk8Q",
+      authDomain: "mygamescratch.firebaseapp.com",
+      projectId: "mygamescratch",
+      storageBucket: "mygamescratch.firebasestorage.app",
+      messagingSenderId: "256549154945",
+      appId: "1:256549154945:web:8263715cc4526bcdf65d80",
+      measurementId: "G-QLSDJR2ESP"
+    };
+
+    // Initialize Firebase Services
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    // Replace this with your deployed Python backend URL (e.g. Render / Cloud Functions)
+    const BACKEND_URL = "YOUR_DEPLOYED_PYTHON_URL";
+    
+    // Identifier for the active chat session
+    const sessionId = "session_123";
+    const messagesRef = collection(db, "chats", sessionId, "messages");
+
+    // 1. Listen to Firestore messages in real-time
+    const q = query(messagesRef, orderBy("timestamp", "asc"));
+    onSnapshot(q, (snapshot) => {
+      const chatbox = document.getElementById("chatbox");
+      chatbox.innerHTML = ""; // Refresh messages display
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const senderClass = data.sender === "user" ? "user" : "bot";
+        const senderPrefix = data.sender === "user" ? "You: " : "Tutor: ";
+        chatbox.innerHTML += `<div class="${senderClass}">${senderPrefix}${data.text}</div>`;
+      });
+
+      chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
+    // 2. Handle sending messages and saving to Firestore
+    window.sendMessage = async function() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+
+      if (!message) return;
+      input.value = "";
+
+      // Save user input to Firestore
+      await addDoc(messagesRef, {
+        sender: "user",
+        text: message,
+        timestamp: serverTimestamp()
+      });
+
+      try {
+        // Send request to Python AI backend
+        const res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: message })
+        });
+
+        const data = await res.json();
+        const replyText = data.reply || data.error || "No response received.";
+
+        // Save AI reply to Firestore
+        await addDoc(messagesRef, {
+          sender: "bot",
+          text: replyText,
+          timestamp: serverTimestamp()
+        });
+
+      } catch (err) {
+        // Log network errors to Firestore
+        await addDoc(messagesRef, {
+          sender: "bot",
+          text: "Error contacting the tutor backend.",
+          timestamp: serverTimestamp()
+        });
+      }
+    };
+  </script>
+</body>
+</html>
