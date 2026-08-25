@@ -3,115 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Socratic Tutor</title>
+  <title>Mygame - AI Socratic Tutor</title>
   
+  <!-- Font Awesome Icons & Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --bg-dark: #0b0c10;
-      --bg-card: #121318;
-      --accent-gold: #e5ab3c;
-      --accent-hover: #fcd068;
+      --bg-dark: #08090c;
+      --bg-card: #111319;
+      --accent-gold: #ffb703;
+      --accent-cyan: #00f0ff;
+      --accent-hover: #ffd166;
       --text-main: #ffffff;
-      --text-muted: #8e9297;
-      --border-color: #22242b;
-      --sidebar-width: 60px;
+      --text-muted: #94a3b8;
+      --border-color: #1e222d;
+      --border-active: #ffb703;
+      --sidebar-width: 65px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-    /* SIDEBAR */
+    /* SIDEBAR WITH GLOW EFFECTS */
     aside {
       width: var(--sidebar-width);
-      background: #07080a;
+      background: #050608;
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 15px 0;
-      gap: 20px;
+      padding: 20px 0;
+      gap: 22px;
       z-index: 10;
     }
 
     .sidebar-icon {
-      color: var(--accent-gold);
-      font-size: 18px;
+      color: var(--text-muted);
+      font-size: 19px;
       cursor: pointer;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      border-radius: 10px;
+      transition: all 0.25s ease;
     }
-    .sidebar-icon:hover, .sidebar-icon.active { background: #1a1c23; color: #fff; }
+    .sidebar-icon:hover, .sidebar-icon.active { 
+      background: rgba(255, 183, 3, 0.12); 
+      color: var(--accent-gold); 
+      box-shadow: 0 0 12px rgba(255, 183, 3, 0.3);
+      border: 1px solid rgba(255, 183, 3, 0.3);
+    }
 
     /* MAIN WRAPPER */
     .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
     /* HEADER */
     header {
-      height: 65px;
+      height: 70px;
       background: var(--bg-card);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 25px;
+      padding: 0 28px;
     }
 
-    .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-    .brand-logo span { color: var(--accent-gold); }
+    .brand-logo { font-size: 24px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    .brand-logo span { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 183, 3, 0.4); }
 
-    .nav-links { display: flex; align-items: center; gap: 20px; }
+    .nav-links { display: flex; align-items: center; gap: 18px; }
     
-    /* ACCOUNT SWITCHER & AUTH BUTTONS */
+    /* LOGIN BUTTON & ACCOUNT SWITCHER */
+    .btn-login {
+      background: linear-gradient(135deg, var(--accent-gold), #e09f00);
+      color: #000;
+      font-weight: 700;
+      padding: 9px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(255, 183, 3, 0.2);
+    }
+    .btn-login:hover {
+      box-shadow: 0 0 18px rgba(255, 183, 3, 0.5);
+      transform: translateY(-1px);
+    }
+
     .account-switcher { position: relative; }
     .account-btn {
-      background: #181920;
+      background: #161922;
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 8px 14px;
+      padding: 9px 15px;
       border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 13px;
+      transition: border 0.2s;
     }
     .account-btn:hover { border-color: var(--accent-gold); }
     
     .account-dropdown {
       position: absolute;
       right: 0;
-      top: 45px;
+      top: 50px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       width: 200px;
       display: none;
       flex-direction: column;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
       z-index: 100;
     }
     .account-dropdown div {
-      padding: 10px 15px;
+      padding: 12px 16px;
       font-size: 13px;
       color: var(--text-muted);
       cursor: pointer;
+      transition: background 0.2s;
     }
-    .account-dropdown div:hover { background: #1a1c23; color: var(--accent-gold); }
+    .account-dropdown div:hover { background: #1a1e2b; color: var(--accent-gold); }
     .account-switcher.active .account-dropdown { display: flex; }
 
-    /* AUTH MODAL OVERLAY */
+    /* AUTH MODAL */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -123,22 +152,24 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 30px;
-      width: 360px;
+      padding: 32px;
+      width: 380px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
     }
-    .auth-card h3 { color: var(--accent-gold); text-align: center; font-weight: 800; }
+    .auth-card h3 { color: var(--accent-gold); text-align: center; font-weight: 800; font-size: 20px; }
     .auth-card input {
       background: var(--bg-dark);
       border: 1px solid var(--border-color);
       color: #fff;
-      padding: 12px;
+      padding: 12px 14px;
       border-radius: 6px;
       outline: none;
+      font-size: 14px;
     }
-    .auth-card input:focus { border-color: var(--accent-gold); }
+    .auth-card input:focus { border-color: var(--accent-gold); box-shadow: 0 0 8px rgba(255, 183, 3, 0.3); }
     .auth-btn {
       background: var(--accent-gold);
       color: #000;
@@ -147,7 +178,9 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .auth-btn:hover { background: var(--accent-hover); }
     .google-btn {
       background: #4285F4;
       color: #fff;
@@ -167,49 +200,55 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      max-width: 900px;
+      max-width: 950px;
       width: 100%;
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px;
     }
     .chat-box {
       flex: 1;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 20px;
+      border-radius: 12px;
+      padding: 24px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 16px;
     }
-    .msg { max-width: 75%; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.5; }
+    .msg { max-width: 75%; padding: 14px 18px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
     .msg.user { align-self: flex-end; background: var(--accent-gold); color: #000; font-weight: 600; }
-    .msg.bot { align-self: flex-start; background: #1a1c23; color: var(--text-main); border: 1px solid var(--border-color); }
+    .msg.bot { align-self: flex-start; background: #171a24; color: var(--text-main); border: 1px solid var(--border-color); }
 
-    .input-wrapper { display: flex; gap: 10px; margin-top: 15px; }
+    .input-wrapper { display: flex; gap: 12px; margin-top: 18px; }
     .input-wrapper input {
       flex: 1;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: #fff;
-      padding: 14px;
+      padding: 16px;
       border-radius: 8px;
       outline: none;
+      font-size: 14px;
+      transition: border 0.2s;
     }
+    .input-wrapper input:focus { border-color: var(--accent-gold); box-shadow: 0 0 10px rgba(255, 183, 3, 0.2); }
     .input-wrapper button {
       background: var(--accent-gold);
       color: #000;
       border: none;
-      padding: 0 24px;
+      padding: 0 28px;
       border-radius: 8px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
+    .input-wrapper button:hover { background: var(--accent-hover); box-shadow: 0 0 12px rgba(255, 183, 3, 0.4); }
   </style>
 </head>
 <body>
 
+  <!-- GAMING SIDEBAR WITH GLOW EFFECTS -->
   <aside>
     <div class="sidebar-icon active"><i class="fa-solid fa-house"></i></div>
     <div class="sidebar-icon"><i class="fa-solid fa-gamepad"></i></div>
@@ -218,11 +257,15 @@
   </aside>
 
   <div class="main-wrapper">
+    <!-- HEADER -->
     <header>
       <div class="brand-logo">M<span>y</span>g<span>a</span>m<span>e</span></div>
 
       <div class="nav-links">
-        <!-- ACCOUNT SWITCHER HEADER MENU -->
+        <!-- DIRECT LOGIN BUTTON -->
+        <button class="btn-login" id="loginHeaderBtn" onclick="openAuthModal()">LOGIN / REGISTER</button>
+
+        <!-- ACCOUNT SWITCHER DROPDOWN -->
         <div class="account-switcher" id="accSwitcher" onclick="toggleAccountMenu()">
           <div class="account-btn">
             <i class="fa-solid fa-user"></i>
@@ -230,16 +273,16 @@
             <i class="fa-solid fa-chevron-down"></i>
           </div>
           <div class="account-dropdown">
-            <div id="authActionBtn" onclick="openAuthModal()">Login / Sign Up</div>
             <div id="logoutBtn" style="display:none;" onclick="logoutUser()">Log Out</div>
           </div>
         </div>
       </div>
     </header>
 
+    <!-- CHAT WORKSPACE -->
     <div class="chat-container">
       <div class="chat-box" id="chatBox">
-        <div class="msg bot">Welcome to Mygame AI Socratic Tutor! Sign in to keep track of your learning.</div>
+        <div class="msg bot">Welcome to Mygame Socratic AI Tutor! Click Login above to authenticate using Email or Gmail.</div>
       </div>
 
       <div class="input-wrapper">
@@ -249,10 +292,10 @@
     </div>
   </div>
 
-  <!-- AUTH MODAL -->
+  <!-- AUTHENTICATION MODAL -->
   <div class="modal-overlay" id="authModal">
     <div class="auth-card">
-      <h3>ACCOUNT ACCESS</h3>
+      <h3>ACCOUNT LOGIN</h3>
       <input type="email" id="authEmail" placeholder="Email Address" />
       <input type="password" id="authPassword" placeholder="Password" />
       <button class="auth-btn" onclick="loginWithEmail()">Login / Register</button>
@@ -292,11 +335,11 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById("currentAccount").innerText = user.displayName || user.email;
-        document.getElementById("authActionBtn").style.display = "none";
+        document.getElementById("loginHeaderBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "block";
       } else {
         document.getElementById("currentAccount").innerText = "Guest User";
-        document.getElementById("authActionBtn").style.display = "block";
+        document.getElementById("loginHeaderBtn").style.display = "block";
         document.getElementById("logoutBtn").style.display = "none";
       }
     });
