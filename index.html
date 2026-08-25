@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mygame - AI Socratic Tutor</title>
+  <title>AI Socratic Tutor</title>
   
   <!-- Font Awesome Icons & Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -14,19 +14,17 @@
       --bg-dark: #08090c;
       --bg-card: #111319;
       --accent-gold: #ffb703;
-      --accent-cyan: #00f0ff;
       --accent-hover: #ffd166;
       --text-main: #ffffff;
       --text-muted: #94a3b8;
       --border-color: #1e222d;
-      --border-active: #ffb703;
       --sidebar-width: 65px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-    /* SIDEBAR WITH GLOW EFFECTS */
+    /* SIDEBAR */
     aside {
       width: var(--sidebar-width);
       background: #050608;
@@ -35,7 +33,7 @@
       flex-direction: column;
       align-items: center;
       padding: 20px 0;
-      gap: 22px;
+      gap: 20px;
       z-index: 10;
     }
 
@@ -72,12 +70,11 @@
       padding: 0 28px;
     }
 
-    .brand-logo { font-size: 24px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
     .brand-logo span { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 183, 3, 0.4); }
 
     .nav-links { display: flex; align-items: center; gap: 18px; }
     
-    /* LOGIN BUTTON & ACCOUNT SWITCHER */
     .btn-login {
       background: linear-gradient(135deg, var(--accent-gold), #e09f00);
       color: #000;
@@ -88,10 +85,9 @@
       cursor: pointer;
       font-size: 13px;
       transition: all 0.2s ease;
-      box-shadow: 0 0 10px rgba(255, 183, 3, 0.2);
     }
     .btn-login:hover {
-      box-shadow: 0 0 18px rgba(255, 183, 3, 0.5);
+      box-shadow: 0 0 12px rgba(255, 183, 3, 0.4);
       transform: translateY(-1px);
     }
 
@@ -108,9 +104,7 @@
       align-items: center;
       gap: 10px;
       font-size: 13px;
-      transition: border 0.2s;
     }
-    .account-btn:hover { border-color: var(--accent-gold); }
     
     .account-dropdown {
       position: absolute;
@@ -119,7 +113,7 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      width: 200px;
+      width: 180px;
       display: none;
       flex-direction: column;
       box-shadow: 0 8px 25px rgba(0,0,0,0.7);
@@ -130,7 +124,6 @@
       font-size: 13px;
       color: var(--text-muted);
       cursor: pointer;
-      transition: background 0.2s;
     }
     .account-dropdown div:hover { background: #1a1e2b; color: var(--accent-gold); }
     .account-switcher.active .account-dropdown { display: flex; }
@@ -157,7 +150,6 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
     }
     .auth-card h3 { color: var(--accent-gold); text-align: center; font-weight: 800; font-size: 20px; }
     .auth-card input {
@@ -169,7 +161,7 @@
       outline: none;
       font-size: 14px;
     }
-    .auth-card input:focus { border-color: var(--accent-gold); box-shadow: 0 0 8px rgba(255, 183, 3, 0.3); }
+    .auth-card input:focus { border-color: var(--accent-gold); }
     .auth-btn {
       background: var(--accent-gold);
       color: #000;
@@ -178,9 +170,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s;
     }
-    .auth-btn:hover { background: var(--accent-hover); }
     .google-btn {
       background: #4285F4;
       color: #fff;
@@ -230,9 +220,8 @@
       border-radius: 8px;
       outline: none;
       font-size: 14px;
-      transition: border 0.2s;
     }
-    .input-wrapper input:focus { border-color: var(--accent-gold); box-shadow: 0 0 10px rgba(255, 183, 3, 0.2); }
+    .input-wrapper input:focus { border-color: var(--accent-gold); }
     .input-wrapper button {
       background: var(--accent-gold);
       color: #000;
@@ -241,31 +230,25 @@
       border-radius: 8px;
       font-weight: 800;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
-    .input-wrapper button:hover { background: var(--accent-hover); box-shadow: 0 0 12px rgba(255, 183, 3, 0.4); }
   </style>
 </head>
 <body>
 
-  <!-- GAMING SIDEBAR WITH GLOW EFFECTS -->
+  <!-- CLEANED SIDEBAR -->
   <aside>
-    <div class="sidebar-icon active"><i class="fa-solid fa-house"></i></div>
-    <div class="sidebar-icon"><i class="fa-solid fa-gamepad"></i></div>
-    <div class="sidebar-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-    <div class="sidebar-icon"><i class="fa-solid fa-gear"></i></div>
+    <div class="sidebar-icon active" title="Tutor Chat" onclick="setActiveNav(this)"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="sidebar-icon" title="Settings" onclick="setActiveNav(this)"><i class="fa-solid fa-gear"></i></div>
   </aside>
 
   <div class="main-wrapper">
     <!-- HEADER -->
     <header>
-      <div class="brand-logo">M<span>y</span>g<span>a</span>m<span>e</span></div>
+      <div class="brand-logo">AI<span>.</span>TUTOR</div>
 
       <div class="nav-links">
-        <!-- DIRECT LOGIN BUTTON -->
         <button class="btn-login" id="loginHeaderBtn" onclick="openAuthModal()">LOGIN / REGISTER</button>
 
-        <!-- ACCOUNT SWITCHER DROPDOWN -->
         <div class="account-switcher" id="accSwitcher" onclick="toggleAccountMenu()">
           <div class="account-btn">
             <i class="fa-solid fa-user"></i>
@@ -282,7 +265,7 @@
     <!-- CHAT WORKSPACE -->
     <div class="chat-container">
       <div class="chat-box" id="chatBox">
-        <div class="msg bot">Welcome to Mygame Socratic AI Tutor! Click Login above to authenticate using Email or Gmail.</div>
+        <div class="msg bot">Welcome to your AI Socratic Study Tutor! Share what you are studying or stuck on.</div>
       </div>
 
       <div class="input-wrapper">
@@ -295,7 +278,7 @@
   <!-- AUTHENTICATION MODAL -->
   <div class="modal-overlay" id="authModal">
     <div class="auth-card">
-      <h3>ACCOUNT LOGIN</h3>
+      <h3>ACCOUNT ACCESS</h3>
       <input type="email" id="authEmail" placeholder="Email Address" />
       <input type="password" id="authPassword" placeholder="Password" />
       <button class="auth-btn" onclick="loginWithEmail()">Login / Register</button>
@@ -329,9 +312,10 @@
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
 
-    const BACKEND_URL = "YOUR_DEPLOYED_PYTHON_URL";
+    // Replace this string with your live deployed backend URL once ready
+    const BACKEND_URL = "https://YOUR_DEPLOYED_BACKEND_SERVICE.onrender.com";
 
-    // Track User Authentication State
+    // Track User Auth State
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById("currentAccount").innerText = user.displayName || user.email;
@@ -344,7 +328,7 @@
       }
     });
 
-    // Email/Password Login & Auto Signup
+    // Email/Password Login
     window.loginWithEmail = async function() {
       const email = document.getElementById("authEmail").value;
       const pass = document.getElementById("authPassword").value;
@@ -361,7 +345,7 @@
       }
     };
 
-    // Google/Gmail Popup Login
+    // Google / Gmail Login
     window.loginWithGoogle = async function() {
       try {
         await signInWithPopup(auth, googleProvider);
@@ -376,7 +360,11 @@
       signOut(auth);
     };
 
-    // UI Toggle Handlers
+    // UI Handlers
+    window.setActiveNav = function(element) {
+      document.querySelectorAll('.sidebar-icon').forEach(icon => icon.classList.remove('active'));
+      element.classList.add('active');
+    };
     window.toggleAccountMenu = function() {
       document.getElementById('accSwitcher').classList.toggle('active');
     };
@@ -387,7 +375,7 @@
       document.getElementById('authModal').classList.remove('active');
     };
 
-    // Chat function
+    // Chat Handler
     window.sendMessage = async function() {
       const input = document.getElementById("userInput");
       const chatBox = document.getElementById("chatBox");
@@ -413,7 +401,7 @@
         const data = await res.json();
         document.getElementById(botMsgId).innerText = data.reply || data.error || "No response received.";
       } catch (err) {
-        document.getElementById(botMsgId).innerText = "Error connecting to AI backend.";
+        document.getElementById(botMsgId).innerText = "Error connecting to AI backend. Ensure BACKEND_URL is set!";
       }
 
       chatBox.scrollTop = chatBox.scrollHeight;
