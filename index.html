@@ -14,27 +14,24 @@
             --text-main: #f8f9fa;
             --text-muted: #8d99ae;
             --border-color: #2b2d42;
-            --sidebar-width: 260px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* SIDEBAR STYLES */
+        /* SIDEBAR */
         #sidebar {
-            width: var(--sidebar-width);
+            width: 260px;
             background: var(--bg-card);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
             z-index: 100;
         }
 
         #sidebar.collapsed {
-            transform: translateX(-100%);
-            position: absolute;
-            height: 100%;
+            margin-left: -260px;
         }
 
         .sidebar-header {
@@ -59,8 +56,8 @@
         }
         .menu-item:hover, .menu-item.active { background: rgba(255, 183, 3, 0.1); color: var(--accent-gold); }
 
-        /* MAIN CONTENT AREA */
-        #main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; position: relative; }
+        /* MAIN LAYOUT */
+        #main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; }
 
         header {
             height: 65px;
@@ -74,7 +71,7 @@
 
         .header-left { display: flex; align-items: center; gap: 16px; }
         .toggle-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
-        .logo { font-weight: 800; font-size: 20px; letter-spacing: 1px; color: #fff; }
+        .logo { font-weight: 800; font-size: 20px; color: #fff; }
         .logo span { color: var(--accent-gold); }
 
         .auth-btn {
@@ -87,11 +84,11 @@
             cursor: pointer;
         }
 
-        /* CHAT WORKSPACE */
+        /* CHAT */
         .chat-container { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
-        .chat-box { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 8px; }
+        .chat-box { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
 
-        .msg { max-width: 80%; padding: 14px 18px; border-radius: 10px; font-size: 15px; line-height: 1.5; }
+        .msg { max-width: 75%; padding: 14px 18px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
         .msg.user { align-self: flex-end; background: var(--accent-gold); color: #000; font-weight: 600; }
         .msg.bot { align-self: flex-start; background: #171a24; color: var(--text-main); border: 1px solid var(--border-color); }
 
@@ -104,6 +101,7 @@
             padding: 16px;
             border-radius: 8px;
             outline: none;
+            font-size: 14px;
         }
         .input-wrapper button {
             background: var(--accent-gold);
@@ -123,10 +121,11 @@
 </head>
 <body>
 
+    <!-- SIDEBAR -->
     <aside id="sidebar">
         <div class="sidebar-header">
             <h3><i class="fa-solid fa-graduation-cap"></i> Menu</h3>
-            <button class="toggle-btn" id="closeSidebarBtn"><i class="fa-solid fa-xmark"></i></button>
+            <button class="toggle-btn" id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="sidebar-menu">
             <div class="menu-item active"><i class="fa-solid fa-message"></i> Chat</div>
@@ -135,14 +134,15 @@
         </div>
     </aside>
 
+    <!-- MAIN PAGE -->
     <div id="main-wrapper">
         <header>
             <div class="header-left">
-                <button class="toggle-btn" id="openSidebarBtn"><i class="fa-solid fa-bars"></i></button>
+                <button class="toggle-btn" id="openSidebar"><i class="fa-solid fa-bars"></i></button>
                 <div class="logo">AI<span>.TUTOR</span></div>
             </div>
             <div id="userSection">
-                <button class="auth-btn" id="loginModalBtn" onclick="openAuthModal()">LOGIN / REGISTER</button>
+                <button class="auth-btn" onclick="openAuthModal()">LOGIN / REGISTER</button>
             </div>
         </header>
 
@@ -157,22 +157,23 @@
         </main>
     </div>
 
+    <!-- MODAL -->
     <div class="modal-overlay" id="authModal">
         <div class="auth-card">
             <h3>ACCOUNT ACCESS</h3>
             <input type="email" id="authEmail" placeholder="Email Address" />
             <input type="password" id="authPassword" placeholder="Password" />
             <button class="auth-btn" onclick="loginWithEmail()">Login / Register</button>
-            <button class="auth-btn" style="background:#fff; color:#000" onclick="loginWithGoogle()"><i class="fa-brands fa-google"></i> Google Sign In</button>
+            <button class="auth-btn" style="background:#fff; color:#000" onclick="loginWithGoogle()"><i class="fa-brands fa-google"></i> Sign in with Gmail</button>
             <button style="background:transparent; color:var(--text-muted); border:none; cursor:pointer;" onclick="closeAuthModal()">Cancel</button>
         </div>
     </div>
 
+    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AiZaSyCF0Pfa0HOV4ciAVtqwLVNq_gLcCtAAk8Q",
             authDomain: "mygamescratch.firebaseapp.com",
@@ -186,15 +187,15 @@
         const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // RELATIVE BACKEND ENDPOINT
+        // UPDATED RELATIVE BACKEND ENDPOINT
         const BACKEND_URL = "/api/chat";
 
-        // SIDEBAR TOGGLE LOGIC
+        // SIDEBAR TOGGLE FIX
         const sidebar = document.getElementById("sidebar");
-        document.getElementById("openSidebarBtn").addEventListener("click", () => sidebar.classList.remove("collapsed"));
-        document.getElementById("closeSidebarBtn").addEventListener("click", () => sidebar.classList.add("collapsed"));
+        document.getElementById("openSidebar").onclick = () => sidebar.classList.remove("collapsed");
+        document.getElementById("closeSidebar").onclick = () => sidebar.classList.add("collapsed");
 
-        // CHAT LOGIC
+        // CHAT HANDLER
         window.sendMessage = async function() {
             const input = document.getElementById("userInput");
             const text = input.value.trim();
@@ -204,26 +205,26 @@
             input.value = "";
 
             try {
-                const response = await fetch(BACKEND_URL, {
+                const res = await fetch(BACKEND_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ message: text })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
                 appendMessage(data.reply || data.error || "No response received.", "bot");
-            } catch (err) {
-                appendMessage("Error connecting to server. Please try again.", "bot");
+            } catch (e) {
+                appendMessage("Error connecting to AI backend.", "bot");
             }
         };
 
         function appendMessage(text, sender) {
-            const chatBox = document.getElementById("chatBox");
-            const msgDiv = document.createElement("div");
-            msgDiv.className = `msg ${sender}`;
-            msgDiv.innerText = text;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            const box = document.getElementById("chatBox");
+            const msg = document.createElement("div");
+            msg.className = `msg ${sender}`;
+            msg.innerText = text;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
         }
 
         // AUTH MODAL LOGIC
@@ -236,7 +237,7 @@
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 closeAuthModal();
-            } catch (err) {
+            } catch {
                 try {
                     await createUserWithEmailAndPassword(auth, email, pass);
                     closeAuthModal();
@@ -252,11 +253,11 @@
         };
 
         onAuthStateChanged(auth, (user) => {
-            const userSec = document.getElementById("userSection");
+            const sec = document.getElementById("userSection");
             if (user) {
-                userSec.innerHTML = `<button class="auth-btn" style="background:#2b2d42; color:#fff;" onclick="logout()">Logout (${user.email.split('@')[0]})</button>`;
+                sec.innerHTML = `<button class="auth-btn" style="background:#2b2d42; color:#fff;" onclick="logout()">Logout (${user.email.split('@')[0]})</button>`;
             } else {
-                userSec.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">LOGIN / REGISTER</button>`;
+                sec.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">LOGIN / REGISTER</button>`;
             }
         });
 
