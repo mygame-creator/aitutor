@@ -1,412 +1,266 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Socratic Tutor</title>
-  
-  <!-- Font Awesome Icons & Google Fonts -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Socratic Tutor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d0f12;
+            --bg-card: #171a24;
+            --accent-gold: #ffb703;
+            --text-main: #f8f9fa;
+            --text-muted: #8d99ae;
+            --border-color: #2b2d42;
+            --sidebar-width: 260px;
+        }
 
-  <style>
-    :root {
-      --bg-dark: #08090c;
-      --bg-card: #111319;
-      --accent-gold: #ffb703;
-      --accent-hover: #ffd166;
-      --text-main: #ffffff;
-      --text-muted: #94a3b8;
-      --border-color: #1e222d;
-      --sidebar-width: 65px;
-    }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        /* SIDEBAR STYLES */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
 
-    /* SIDEBAR */
-    aside {
-      width: var(--sidebar-width);
-      background: #050608;
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 0;
-      gap: 20px;
-      z-index: 10;
-    }
+        #sidebar.collapsed {
+            transform: translateX(-100%);
+            position: absolute;
+            height: 100%;
+        }
 
-    .sidebar-icon {
-      color: var(--text-muted);
-      font-size: 19px;
-      cursor: pointer;
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      transition: all 0.25s ease;
-    }
-    .sidebar-icon:hover, .sidebar-icon.active { 
-      background: rgba(255, 183, 3, 0.12); 
-      color: var(--accent-gold); 
-      box-shadow: 0 0 12px rgba(255, 183, 3, 0.3);
-      border: 1px solid rgba(255, 183, 3, 0.3);
-    }
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    /* MAIN WRAPPER */
-    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .sidebar-menu { padding: 20px; flex: 1; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .menu-item:hover, .menu-item.active { background: rgba(255, 183, 3, 0.1); color: var(--accent-gold); }
 
-    /* HEADER */
-    header {
-      height: 70px;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-    }
+        /* MAIN CONTENT AREA */
+        #main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; position: relative; }
 
-    .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-    .brand-logo span { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 183, 3, 0.4); }
+        header {
+            height: 65px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: var(--bg-card);
+        }
 
-    .nav-links { display: flex; align-items: center; gap: 18px; }
-    
-    .btn-login {
-      background: linear-gradient(135deg, var(--accent-gold), #e09f00);
-      color: #000;
-      font-weight: 700;
-      padding: 9px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s ease;
-    }
-    .btn-login:hover {
-      box-shadow: 0 0 12px rgba(255, 183, 3, 0.4);
-      transform: translateY(-1px);
-    }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .toggle-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+        .logo { font-weight: 800; font-size: 20px; letter-spacing: 1px; color: #fff; }
+        .logo span { color: var(--accent-gold); }
 
-    .account-switcher { position: relative; }
-    .account-btn {
-      background: #161922;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 9px 15px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-    
-    .account-dropdown {
-      position: absolute;
-      right: 0;
-      top: 50px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      width: 180px;
-      display: none;
-      flex-direction: column;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-      z-index: 100;
-    }
-    .account-dropdown div {
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-    .account-dropdown div:hover { background: #1a1e2b; color: var(--accent-gold); }
-    .account-switcher.active .account-dropdown { display: flex; }
+        .auth-btn {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-    /* AUTH MODAL */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(5px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .modal-overlay.active { display: flex; }
+        /* CHAT WORKSPACE */
+        .chat-container { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+        .chat-box { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 8px; }
 
-    .auth-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 32px;
-      width: 380px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .auth-card h3 { color: var(--accent-gold); text-align: center; font-weight: 800; font-size: 20px; }
-    .auth-card input {
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 6px;
-      outline: none;
-      font-size: 14px;
-    }
-    .auth-card input:focus { border-color: var(--accent-gold); }
-    .auth-btn {
-      background: var(--accent-gold);
-      color: #000;
-      font-weight: 700;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .google-btn {
-      background: #4285F4;
-      color: #fff;
-      font-weight: 600;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+        .msg { max-width: 80%; padding: 14px 18px; border-radius: 10px; font-size: 15px; line-height: 1.5; }
+        .msg.user { align-self: flex-end; background: var(--accent-gold); color: #000; font-weight: 600; }
+        .msg.bot { align-self: flex-start; background: #171a24; color: var(--text-main); border: 1px solid var(--border-color); }
 
-    /* CHAT WORKSPACE */
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-width: 950px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .chat-box {
-      flex: 1;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 24px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .msg { max-width: 75%; padding: 14px 18px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
-    .msg.user { align-self: flex-end; background: var(--accent-gold); color: #000; font-weight: 600; }
-    .msg.bot { align-self: flex-start; background: #171a24; color: var(--text-main); border: 1px solid var(--border-color); }
+        .input-wrapper { display: flex; gap: 12px; margin-top: 18px; }
+        .input-wrapper input {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            outline: none;
+        }
+        .input-wrapper button {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 0 28px;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+        }
 
-    .input-wrapper { display: flex; gap: 12px; margin-top: 18px; }
-    .input-wrapper input {
-      flex: 1;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 16px;
-      border-radius: 8px;
-      outline: none;
-      font-size: 14px;
-    }
-    .input-wrapper input:focus { border-color: var(--accent-gold); }
-    .input-wrapper button {
-      background: var(--accent-gold);
-      color: #000;
-      border: none;
-      padding: 0 28px;
-      border-radius: 8px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-  </style>
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+        .auth-card { background: var(--bg-card); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; }
+        .auth-card input { padding: 12px; background: var(--bg-dark); border: 1px solid var(--border-color); color: #fff; border-radius: 6px; }
+    </style>
 </head>
 <body>
 
-  <!-- CLEANED SIDEBAR -->
-  <aside>
-    <div class="sidebar-icon active" title="Tutor Chat" onclick="setActiveNav(this)"><i class="fa-solid fa-graduation-cap"></i></div>
-    <div class="sidebar-icon" title="Settings" onclick="setActiveNav(this)"><i class="fa-solid fa-gear"></i></div>
-  </aside>
-
-  <div class="main-wrapper">
-    <!-- HEADER -->
-    <header>
-      <div class="brand-logo">AI<span>.</span>TUTOR</div>
-
-      <div class="nav-links">
-        <button class="btn-login" id="loginHeaderBtn" onclick="openAuthModal()">LOGIN / REGISTER</button>
-
-        <div class="account-switcher" id="accSwitcher" onclick="toggleAccountMenu()">
-          <div class="account-btn">
-            <i class="fa-solid fa-user"></i>
-            <span id="currentAccount">Guest User</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </div>
-          <div class="account-dropdown">
-            <div id="logoutBtn" style="display:none;" onclick="logoutUser()">Log Out</div>
-          </div>
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fa-solid fa-graduation-cap"></i> Menu</h3>
+            <button class="toggle-btn" id="closeSidebarBtn"><i class="fa-solid fa-xmark"></i></button>
         </div>
-      </div>
-    </header>
+        <div class="sidebar-menu">
+            <div class="menu-item active"><i class="fa-solid fa-message"></i> Chat</div>
+            <div class="menu-item"><i class="fa-solid fa-book"></i> Notes</div>
+            <div class="menu-item"><i class="fa-solid fa-gear"></i> Settings</div>
+        </div>
+    </aside>
 
-    <!-- CHAT WORKSPACE -->
-    <div class="chat-container">
-      <div class="chat-box" id="chatBox">
-        <div class="msg bot">Welcome to your AI Socratic Study Tutor! Share what you are studying or stuck on.</div>
-      </div>
+    <div id="main-wrapper">
+        <header>
+            <div class="header-left">
+                <button class="toggle-btn" id="openSidebarBtn"><i class="fa-solid fa-bars"></i></button>
+                <div class="logo">AI<span>.TUTOR</span></div>
+            </div>
+            <div id="userSection">
+                <button class="auth-btn" id="loginModalBtn" onclick="openAuthModal()">LOGIN / REGISTER</button>
+            </div>
+        </header>
 
-      <div class="input-wrapper">
-        <input type="text" id="userInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendMessage()" />
-        <button onclick="sendMessage()">SEND</button>
-      </div>
+        <main class="chat-container">
+            <div class="chat-box" id="chatBox">
+                <div class="msg bot">Welcome to your AI Socratic Study Tutor! Share what you are studying or stuck on.</div>
+            </div>
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendMessage()" />
+                <button onclick="sendMessage()">SEND</button>
+            </div>
+        </main>
     </div>
-  </div>
 
-  <!-- AUTHENTICATION MODAL -->
-  <div class="modal-overlay" id="authModal">
-    <div class="auth-card">
-      <h3>ACCOUNT ACCESS</h3>
-      <input type="email" id="authEmail" placeholder="Email Address" />
-      <input type="password" id="authPassword" placeholder="Password" />
-      <button class="auth-btn" onclick="loginWithEmail()">Login / Register</button>
-      <button class="google-btn" onclick="loginWithGoogle()"><i class="fa-brands fa-google"></i> Sign in with Gmail</button>
-      <button style="background:transparent; color:var(--text-muted); border:none; cursor:pointer;" onclick="closeAuthModal()">Cancel</button>
+    <div class="modal-overlay" id="authModal">
+        <div class="auth-card">
+            <h3>ACCOUNT ACCESS</h3>
+            <input type="email" id="authEmail" placeholder="Email Address" />
+            <input type="password" id="authPassword" placeholder="Password" />
+            <button class="auth-btn" onclick="loginWithEmail()">Login / Register</button>
+            <button class="auth-btn" style="background:#fff; color:#000" onclick="loginWithGoogle()"><i class="fa-brands fa-google"></i> Google Sign In</button>
+            <button style="background:transparent; color:var(--text-muted); border:none; cursor:pointer;" onclick="closeAuthModal()">Cancel</button>
+        </div>
     </div>
-  </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword, 
-      GoogleAuthProvider, 
-      signInWithPopup, 
-      signOut, 
-      onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCf0Pfa0HOV4ciAVtqwLVNq_gLcCtAAk8Q",
-      authDomain: "mygamescratch.firebaseapp.com",
-      projectId: "mygamescratch",
-      storageBucket: "mygamescratch.firebasestorage.app",
-      messagingSenderId: "256549154945",
-      appId: "1:256549154945:web:8263715cc4526bcdf65d80"
-    };
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AiZaSyCF0Pfa0HOV4ciAVtqwLVNq_gLcCtAAk8Q",
+            authDomain: "mygamescratch.firebaseapp.com",
+            projectId: "mygamescratch",
+            storageBucket: "mygamescratch.firebasestorage.app",
+            messagingSenderId: "256549154945",
+            appId: "1:256549154945:web:8263715cc4526bcdf65d80"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const googleProvider = new GoogleAuthProvider();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
 
-    // Replace this string with your live deployed backend URL once ready
-   const BACKEND_URL = "/api/chat";
-// or "https://study-akshat.vercel.app/api/index.py"
+        // RELATIVE BACKEND ENDPOINT
+        const BACKEND_URL = "/api/chat";
 
-    // Track User Auth State
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById("currentAccount").innerText = user.displayName || user.email;
-        document.getElementById("loginHeaderBtn").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "block";
-      } else {
-        document.getElementById("currentAccount").innerText = "Guest User";
-        document.getElementById("loginHeaderBtn").style.display = "block";
-        document.getElementById("logoutBtn").style.display = "none";
-      }
-    });
+        // SIDEBAR TOGGLE LOGIC
+        const sidebar = document.getElementById("sidebar");
+        document.getElementById("openSidebarBtn").addEventListener("click", () => sidebar.classList.remove("collapsed"));
+        document.getElementById("closeSidebarBtn").addEventListener("click", () => sidebar.classList.add("collapsed"));
 
-    // Email/Password Login
-    window.loginWithEmail = async function() {
-      const email = document.getElementById("authEmail").value;
-      const pass = document.getElementById("authPassword").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        closeAuthModal();
-      } catch (err) {
-        if (err.code === "auth/user-not-found") {
-          await createUserWithEmailAndPassword(auth, email, pass);
-          closeAuthModal();
-        } else {
-          alert("Auth Error: " + err.message);
+        // CHAT LOGIC
+        window.sendMessage = async function() {
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage(text, "user");
+            input.value = "";
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                appendMessage(data.reply || data.error || "No response received.", "bot");
+            } catch (err) {
+                appendMessage("Error connecting to server. Please try again.", "bot");
+            }
+        };
+
+        function appendMessage(text, sender) {
+            const chatBox = document.getElementById("chatBox");
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `msg ${sender}`;
+            msgDiv.innerText = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
-      }
-    };
 
-    // Google / Gmail Login
-    window.loginWithGoogle = async function() {
-      try {
-        await signInWithPopup(auth, googleProvider);
-        closeAuthModal();
-      } catch (err) {
-        alert("Google Auth Error: " + err.message);
-      }
-    };
+        // AUTH MODAL LOGIC
+        window.openAuthModal = () => document.getElementById("authModal").style.display = "flex";
+        window.closeAuthModal = () => document.getElementById("authModal").style.display = "none";
 
-    // Logout
-    window.logoutUser = function() {
-      signOut(auth);
-    };
+        window.loginWithEmail = async () => {
+            const email = document.getElementById("authEmail").value;
+            const pass = document.getElementById("authPassword").value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                closeAuthModal();
+            } catch (err) {
+                try {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                    closeAuthModal();
+                } catch (e) { alert(e.message); }
+            }
+        };
 
-    // UI Handlers
-    window.setActiveNav = function(element) {
-      document.querySelectorAll('.sidebar-icon').forEach(icon => icon.classList.remove('active'));
-      element.classList.add('active');
-    };
-    window.toggleAccountMenu = function() {
-      document.getElementById('accSwitcher').classList.toggle('active');
-    };
-    window.openAuthModal = function() {
-      document.getElementById('authModal').classList.add('active');
-    };
-    window.closeAuthModal = function() {
-      document.getElementById('authModal').classList.remove('active');
-    };
+        window.loginWithGoogle = async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+                closeAuthModal();
+            } catch (e) { alert(e.message); }
+        };
 
-    // Chat Handler
-    window.sendMessage = async function() {
-      const input = document.getElementById("userInput");
-      const chatBox = document.getElementById("chatBox");
-      const text = input.value.trim();
-
-      if (!text) return;
-
-      chatBox.innerHTML += `<div class="msg user">${text}</div>`;
-      input.value = "";
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      const botMsgId = "bot-" + Date.now();
-      chatBox.innerHTML += `<div class="msg bot" id="${botMsgId}">Thinking...</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      try {
-        const res = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
+        onAuthStateChanged(auth, (user) => {
+            const userSec = document.getElementById("userSection");
+            if (user) {
+                userSec.innerHTML = `<button class="auth-btn" style="background:#2b2d42; color:#fff;" onclick="logout()">Logout (${user.email.split('@')[0]})</button>`;
+            } else {
+                userSec.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">LOGIN / REGISTER</button>`;
+            }
         });
 
-        const data = await res.json();
-        document.getElementById(botMsgId).innerText = data.reply || data.error || "No response received.";
-      } catch (err) {
-        document.getElementById(botMsgId).innerText = "Error connecting to AI backend. Ensure BACKEND_URL is set!";
-      }
-
-      chatBox.scrollTop = chatBox.scrollHeight;
-    };
-  </script>
+        window.logout = () => signOut(auth);
+    </script>
 </body>
 </html>
